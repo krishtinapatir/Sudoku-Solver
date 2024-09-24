@@ -36,11 +36,15 @@ const API_URL = isDeployed
 let GetPuzzle = document.getElementById('GetPuzzle');
 let SolvePuzzle = document.getElementById('SolvePuzzle');
 
-// Function to handle puzzle fetch
+// Add a visual confirmation that the button was clicked
 GetPuzzle.onclick = async function () {
-    console.log("GetPuzzle button clicked!"); // Debug: Ensure the button is being clicked
+    alert("GetPuzzle button was clicked!"); // Confirm the button click on GitHub
+    console.log("GetPuzzle button clicked!"); // Debug in the console
 
     try {
+        // Add a visual change to confirm API fetch
+        document.body.style.backgroundColor = "yellow";
+
         const response = await fetch(API_URL);
         if (!response.ok) throw new Error('Failed to fetch the puzzle');
         
@@ -49,8 +53,12 @@ GetPuzzle.onclick = async function () {
         
         board = data.board;
         FillBoard(board);
+
+        // Reset background color after success
+        document.body.style.backgroundColor = "white";
     } catch (error) {
         console.error('Error fetching puzzle:', error); // Debug: Catch and display any errors
+        alert('Error fetching puzzle: ' + error.message);
     }
 };
 
