@@ -1,125 +1,107 @@
-// Array to represent the board cells
-var arr = [[], [], [], [], [], [], [], [], []];
+var arr = [[], [], [], [], [], [], [], [], []]
 
 for (var i = 0; i < 9; i++) {
-    for (var j = 0; j < 9; j++) {
-        arr[i][j] = document.getElementById(i * 9 + j); // Link cells to the DOM elements
-    }
+	for (var j = 0; j < 9; j++) {
+		arr[i][j] = document.getElementById(i * 9 + j);
+
+	}
 }
 
-// Board data
-var board = [[], [], [], [], [], [], [], [], []];
 
-// Function to fill the board in the UI
+var board = [[], [], [], [], [], [], [], [], []]
+
 function FillBoard(board) {
-    for (var i = 0; i < 9; i++) {
-        for (var j = 0; j < 9; j++) {
-            if (board[i][j] != 0) {
-                arr[i][j].innerText = board[i][j]; // Fill in the number
-            } else {
-                arr[i][j].innerText = ''; // Clear the cell if no number
-            }
-        }
-    }
+	for (var i = 0; i < 9; i++) {
+		for (var j = 0; j < 9; j++) {
+			if (board[i][j] != 0) {
+				arr[i][j].innerText = board[i][j]
+			}
+
+			else
+				arr[i][j].innerText = ''
+		}
+	}
 }
 
-// Detect if we're running on GitHub Pages
-const isDeployed = window.location.href.includes("github.io");
+let GetPuzzle = document.getElementById('GetPuzzle')
+let SolvePuzzle = document.getElementById('SolvePuzzle')
 
-// Use CORS proxy only when deployed
-const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
-const API_URL = isDeployed
-    ? `${CORS_PROXY}https://sugoku.onrender.com/board?difficulty=easy`
-    : "https://sugoku.onrender.com/board?difficulty=easy";
+GetPuzzle.onclick = function () {
+	var xhrRequest = new XMLHttpRequest()
+	xhrRequest.onload = function () {
+		var response = JSON.parse(xhrRequest.response)
+		console.log(response)
+		board = response.board
+		FillBoard(board)
+	}
+	xhrRequest.open('get', 'https://sugoku.onrender.com/board?difficulty=easy')
+	//we can change the difficulty of the puzzle the allowed values of difficulty are easy, medium, hard and random
+	xhrRequest.send()
+}
 
-// Get references to buttons
-let GetPuzzle = document.getElementById('GetPuzzle');
-let SolvePuzzle = document.getElementById('SolvePuzzle');
-
-// Add a visual confirmation that the button was clicked
-// Function to fetch and display the puzzle
-GetPuzzle.onclick = async function () {
-    alert("GetPuzzle button was clicked!");
-    console.log("GetPuzzle button clicked!");
-
-    try {
-        // Change background color for visual confirmation
-        document.body.style.backgroundColor = "yellow";
-        console.log("Fetching puzzle from:", API_URL);
-
-        const response = await fetch(API_URL);
-        
-        // Check if response is okay
-        if (!response.ok) {
-            console.error('HTTP error status:', response.status);
-            throw new Error('Failed to fetch the puzzle');
-        }
-
-        const data = await response.json();
-        console.log("Raw API response:", data); // Log the entire API response
-
-        // Check if the board data is present
-        if (data.board) {
-            board = data.board; // Update the board variable
-            FillBoard(board); // Fill the board in the UI
-        } else {
-            throw new Error('Puzzle data not found in response');
-        }
-
-        // Reset background color after success
-        document.body.style.backgroundColor = "white";
-    } catch (error) {
-        console.error('Error fetching puzzle:', error); // Log the error
-        alert('Error fetching puzzle: ' + error.message); // Alert the error message
-    }
-};
-
-
-
-// Sudoku solver algorithm (already present in your code)
 SolvePuzzle.onclick = () => {
-    sudukoSolver(board, 0, 0, 9);
+	sudukoSolver(board, 0, 0, 9);
 };
 
-// Helper function to check if the value can be placed safely in the Sudoku grid
-function isSafe(board, row, col, val, n) {
-    for (let i = 0; i < n; i++) {
-        if (board[row][i] == val || board[i][col] == val) return false;
-    }
-    let rn = Math.sqrt(n);
-    let si = row - row % rn;
-    let sj = col - col % rn;
-    for (let x = si; x < si + rn; x++) {
-        for (let y = sj; y < sj + rn; y++) {
-            if (board[x][y] == val) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
+function isSafe(board,row,col,val,n) {
+	for (let i = 0; i<n; i++) {
+	  // row check
+	  if (board[row][i] == val || board[i][col]==val)
+		return false;
+	  // col check
+	//   if (board[i][col] == val)
+	// 	return false;
+	  // 3*3matrix check
+	//   if (board[3 * (row / 3) + i / 3][3 * (col / 3) + i % 3] == val)
+	// 	return false;
+	}
+	//submatrix check
+	let rn=Math.sqrt(n);
+	let si= row-row%rn;
+	let sj= col-col%rn;
+	for(let x=si; x<si+rn; x++){
+		for(let y=sj; y<sj+rn; y++){
+			if(board==val){
+				return false;
+			}
+		}
+	}
+	return true;
+  }
 
-// Sudoku solver function with backtracking
-function sudukoSolver(board, row, col, n) {
-    if (row == n) {
-        FillBoard(board);
-        return true;
-    }
-    if (col == n) {
-        return sudukoSolver(board, row + 1, 0, n);
-    }
-    if (board[row][col] != 0) {
-        return sudukoSolver(board, row, col + 1, n);
-    }
-    for (let val = 1; val <= 9; val++) {
-        if (isSafe(board, row, col, val, n)) {
-            board[row][col] = val;
-            let possible = sudukoSolver(board, row, col + 1, n);
-            if (possible) {
-                return true;
-            }
-            board[row][col] = 0;
-        }
-    }
-    return false;
-}
+function sudukoSolver(board,row,col,n) {
+	// base case
+	if (row == n) {
+	  //print(board, n);
+	  FillBoard(board)
+	  return true;
+	}
+	// if we at last col
+	if (col == n) {
+	  return sudukoSolver(board, row + 1, 0, n);
+	}
+	// if cell is already filled
+	if (board[row][col] != 0) {
+	  return sudukoSolver(board, row, col + 1, n);
+	}
+	for (let val = 1; val <= 9; val++) {
+	  // check val is safe or not?
+	  if (isSafe(board, row, col, val, n)) {
+		board[row][col] = val;
+		// recursive call
+		let aagesolpossible = sudukoSolver(board, row, col + 1, n);
+		if (aagesolpossible) {
+		  return true;
+		} 
+		// backtracking
+		board[row][col] = 0;
+	  }
+	}
+	return false;
+  }
+  
+
+
+
+
+  
