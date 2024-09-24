@@ -37,60 +37,43 @@ let GetPuzzle = document.getElementById('GetPuzzle');
 let SolvePuzzle = document.getElementById('SolvePuzzle');
 
 // Add a visual confirmation that the button was clicked
+// Function to fetch and display the puzzle
 GetPuzzle.onclick = async function () {
     alert("GetPuzzle button was clicked!");
     console.log("GetPuzzle button clicked!");
 
     try {
+        // Change background color for visual confirmation
         document.body.style.backgroundColor = "yellow";
-        console.log("Fetching puzzle from:", API_URL); // Log the URL being fetched
+        console.log("Fetching puzzle from:", API_URL);
 
         const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Failed to fetch the puzzle');
+        
+        // Check if response is okay
+        if (!response.ok) {
+            console.error('HTTP error status:', response.status);
+            throw new Error('Failed to fetch the puzzle');
+        }
 
         const data = await response.json();
-        console.log("Raw API response:", data); // Log the entire response
+        console.log("Raw API response:", data); // Log the entire API response
 
+        // Check if the board data is present
         if (data.board) {
-            board = data.board;
-            FillBoard(board);
+            board = data.board; // Update the board variable
+            FillBoard(board); // Fill the board in the UI
         } else {
             throw new Error('Puzzle data not found in response');
         }
 
+        // Reset background color after success
         document.body.style.backgroundColor = "white";
     } catch (error) {
-        console.error('Error fetching puzzle:', error);
-        alert('Error fetching puzzle: ' + error.message);
+        console.error('Error fetching puzzle:', error); // Log the error
+        alert('Error fetching puzzle: ' + error.message); // Alert the error message
     }
 };
-GetPuzzle.onclick = async function () {
-    alert("GetPuzzle button was clicked!");
-    console.log("GetPuzzle button clicked!");
 
-    try {
-        document.body.style.backgroundColor = "yellow";
-        console.log("Fetching puzzle from:", API_URL); // Log the URL being fetched
-
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Failed to fetch the puzzle');
-
-        const data = await response.json();
-        console.log("Raw API response:", data); // Log the entire response
-
-        if (data.board) {
-            board = data.board;
-            FillBoard(board);
-        } else {
-            throw new Error('Puzzle data not found in response');
-        }
-
-        document.body.style.backgroundColor = "white";
-    } catch (error) {
-        console.error('Error fetching puzzle:', error);
-        alert('Error fetching puzzle: ' + error.message);
-    }
-};
 
 
 // Sudoku solver algorithm (already present in your code)
